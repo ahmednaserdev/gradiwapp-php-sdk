@@ -65,13 +65,14 @@ php artisan vendor:publish --provider="GradiWapp\Sdk\Laravel\GradiWappServicePro
 This will create `config/gradiwapp.php`. Configure your API credentials in `.env`:
 
 ```env
-GRADIWAPP_BASE_URL=https://api.your-gradiwapp-domain.com/external/v1
 GRADIWAPP_API_KEY=your_api_key_here
 GRADIWAPP_API_SECRET=your_api_secret_here
 GRADIWAPP_TIMEOUT=30
 GRADIWAPP_MAX_RETRIES=1
 GRADIWAPP_VERIFY_SSL=true
 ```
+
+> **Note:** The base URL is now internal and non-configurable. All requests are automatically sent to `https://api.gradiwapp.com/external/v1`.
 
 The SDK will be auto-discovered by Laravel (Laravel 5.5+).
 
@@ -89,7 +90,6 @@ use DateTimeImmutable;
 
 // Create configuration
 $config = new Config(
-    baseUrl: 'https://api.your-gradiwapp-domain.com/external/v1',
     apiKey: 'your_api_key',
     apiSecret: 'your_api_secret',
     timeout: 30

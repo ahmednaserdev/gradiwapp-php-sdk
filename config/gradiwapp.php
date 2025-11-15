@@ -3,17 +3,6 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | Base URL
-    |--------------------------------------------------------------------------
-    |
-    | The base URL for the GradiWapp External API.
-    | Example: https://api.your-gradiwapp-domain.com/external/v1
-    |
-    */
-    'base_url' => env('GRADIWAPP_BASE_URL', 'https://api.your-gradiwapp-domain.com/external/v1'),
-
-    /*
-    |--------------------------------------------------------------------------
     | API Key
     |--------------------------------------------------------------------------
     |

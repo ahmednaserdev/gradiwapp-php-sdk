@@ -7,7 +7,12 @@ namespace GradiWapp\Sdk;
  */
 class Config
 {
-    private string $baseUrl;
+    /**
+     * Base URL for GradiWapp External API
+     * This is internal and cannot be overridden.
+     */
+    public const BASE_URL = 'https://api.gradiwapp.com/external/v1';
+
     private string $apiKey;
     private string $apiSecret;
     private int $timeout;
@@ -15,14 +20,12 @@ class Config
     private bool $verifySsl;
 
     public function __construct(
-        string $baseUrl,
         string $apiKey,
         string $apiSecret,
         int $timeout = 30,
         int $maxRetries = 1,
         bool $verifySsl = true
     ) {
-        $this->baseUrl = $baseUrl;
         $this->apiKey = $apiKey;
         $this->apiSecret = $apiSecret;
         $this->timeout = $timeout;
@@ -36,7 +39,6 @@ class Config
     public static function fromArray(array $config): self
     {
         return new self(
-            $config['base_url'] ?? '',
             $config['api_key'] ?? '',
             $config['api_secret'] ?? '',
             $config['timeout'] ?? 30,
@@ -45,9 +47,12 @@ class Config
         );
     }
 
+    /**
+     * Get the base URL (internal constant, non-configurable)
+     */
     public function getBaseUrl(): string
     {
-        return rtrim($this->baseUrl, '/');
+        return self::BASE_URL;
     }
 
     public function getApiKey(): string

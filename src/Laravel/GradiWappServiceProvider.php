@@ -25,7 +25,6 @@ class GradiWappServiceProvider extends ServiceProvider
         // Bind Client as singleton
         $this->app->singleton(Client::class, function ($app) {
             $config = new Config(
-                config('gradiwapp.base_url', ''),
                 config('gradiwapp.api_key', ''),
                 config('gradiwapp.api_secret', ''),
                 config('gradiwapp.timeout', 30),

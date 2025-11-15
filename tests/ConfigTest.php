@@ -10,7 +10,6 @@ class ConfigTest extends TestCase
     public function testConfigCreation()
     {
         $config = new Config(
-            baseUrl: 'https://api.example.com/external/v1',
             apiKey: 'test_key',
             apiSecret: 'test_secret',
             timeout: 30,
@@ -18,7 +17,9 @@ class ConfigTest extends TestCase
             verifySsl: true
         );
 
-        $this->assertEquals('https://api.example.com/external/v1', $config->getBaseUrl());
+        // Base URL is now a constant and cannot be overridden
+        $this->assertEquals(Config::BASE_URL, $config->getBaseUrl());
+        $this->assertEquals('https://api.gradiwapp.com/external/v1', $config->getBaseUrl());
         $this->assertEquals('test_key', $config->getApiKey());
         $this->assertEquals('test_secret', $config->getApiSecret());
         $this->assertEquals(30, $config->getTimeout());
@@ -29,7 +30,6 @@ class ConfigTest extends TestCase
     public function testConfigFromArray()
     {
         $config = Config::fromArray([
-            'base_url' => 'https://api.example.com/external/v1',
             'api_key' => 'test_key',
             'api_secret' => 'test_secret',
             'timeout' => 60,
@@ -37,7 +37,9 @@ class ConfigTest extends TestCase
             'verify_ssl' => false,
         ]);
 
-        $this->assertEquals('https://api.example.com/external/v1', $config->getBaseUrl());
+        // Base URL is always the constant value
+        $this->assertEquals(Config::BASE_URL, $config->getBaseUrl());
+        $this->assertEquals('https://api.gradiwapp.com/external/v1', $config->getBaseUrl());
         $this->assertEquals('test_key', $config->getApiKey());
         $this->assertEquals('test_secret', $config->getApiSecret());
         $this->assertEquals(60, $config->getTimeout());
@@ -45,15 +47,20 @@ class ConfigTest extends TestCase
         $this->assertFalse($config->getVerifySsl());
     }
 
-    public function testConfigBaseUrlTrimming()
+    public function testBaseUrlIsConstant()
     {
-        $config = new Config(
-            baseUrl: 'https://api.example.com/external/v1/',
-            apiKey: 'test_key',
-            apiSecret: 'test_secret'
-        );
+        $config1 = new Config('key1', 'secret1');
+        $config2 = new Config('key2', 'secret2');
 
-        $this->assertEquals('https://api.example.com/external/v1', $config->getBaseUrl());
+        // Both should return the same constant BASE_URL
+        $this->assertEquals(Config::BASE_URL, $config1->getBaseUrl());
+        $this->assertEquals(Config::BASE_URL, $config2->getBaseUrl());
+        $this->assertEquals($config1->getBaseUrl(), $config2->getBaseUrl());
+    }
+
+    public function testBaseUrlConstantValue()
+    {
+        $this->assertEquals('https://api.gradiwapp.com/external/v1', Config::BASE_URL);
     }
 }
 

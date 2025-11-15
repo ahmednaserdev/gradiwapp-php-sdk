@@ -26,7 +26,7 @@ class Client
     {
         $this->config = $config;
         $this->httpClient = new GuzzleClient([
-            'base_uri' => $this->config->getBaseUrl(),
+            'base_uri' => Config::BASE_URL,
             'timeout' => $this->config->getTimeout(),
             'verify' => $this->config->getVerifySsl(),
             'http_errors' => false, // We'll handle errors manually
