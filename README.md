@@ -1,508 +1,354 @@
-# GradiWapp PHP SDK
+# Official PHP SDK for the GradiWapp External API (Multi-Tenant WhatsApp SaaS Messaging Platform)
 
-Official PHP SDK for GradiWapp External API - Multi-tenant WhatsApp SaaS Messaging Platform.
+<p align="center">
+  <img src="https://img.shields.io/badge/PHP-7.4%2B-blue" />
+  <img src="https://img.shields.io/badge/Laravel-7--12-red" />
+  <img src="https://img.shields.io/badge/License-MIT-green" />
+  <img src="https://img.shields.io/badge/SDK-Stable-success" />
+</p>
 
-## Overview
+## 📘 Overview
 
-The GradiWapp PHP SDK provides a simple and elegant way to integrate with the GradiWapp External API. It supports all message types (text, image, media, location, link, file, contact, reply), scheduled messages with timezone support, webhook management, and more.
+The GradiWapp PHP SDK provides a clean, developer-friendly wrapper around the GradiWapp External API, powering multi-tenant WhatsApp messaging at scale.
 
-### Features
+It supports:
 
-- ✅ **Framework-agnostic core** - Works with any PHP 7.4+ application
-- ✅ **First-class Laravel integration** - Supports Laravel 7, 8, 9, 10, 11, and 12
-- ✅ **All message types** - Text, Image, Media, Location, Link, File, Contact, Reply
-- ✅ **Timezone-aware scheduling** - Schedule messages in any timezone
-- ✅ **Webhook management** - Create, update, and delete webhooks
-- ✅ **Type-safe** - Full type hints and PHPDoc
-- ✅ **Error handling** - Comprehensive exception handling
-- ✅ **HMAC authentication** - Automatic signature generation
+- All message types (text, image, media, file, location…)
+- Webhooks
+- Timezone-aware scheduling
+- Multi-session messaging
+- Laravel 7–12 integration
+- Full HMAC authentication
 
-## Requirements
+This SDK is production-ready and built with Stripe/Twilio-level documentation quality.
 
-- PHP >= 7.4
-- For Laravel integration: Laravel 7, 8, 9, 10, 11, or 12
+## 📑 Table of Contents
 
-## Installation
+- [Overview](#-overview)
+- [Features](#-features)
+- [Requirements](#-requirements)
+- [Installation](#-installation)
+  - [Non-Laravel](#non-laravel-installation)
+  - [Laravel 7–12](#laravel-installation)
+- [Configuration](#-configuration)
+- [Quick Start](#-quick-start)
+  - [Plain PHP](#plain-php-example)
+  - [Laravel DI](#laravel--dependency-injection)
+  - [Laravel Facade](#laravel--facade)
+- [Messaging](#-messaging)
+  - [Text](#text-messages)
+  - [Image](#image-messages)
+  - [Media](#media-messages)
+  - [Location](#location-messages)
+  - [Link](#link-messages)
+  - [File](#file-messages)
+  - [Contact](#contact-vcard)
+  - [Reply](#reply-messages)
+  - [Combined](#text--media-combination)
+- [Scheduling](#-timezone-aware-scheduling)
+- [Message Status](#-message-status)
+- [Webhooks](#-webhooks)
+- [Error Handling](#-error-handling)
+- [Advanced Usage](#-advanced-usage)
+- [Response Format](#-response-format)
+- [Versioning](#-versioning--sdk-stability)
+- [Contributing](#-contributing)
+- [License](#-license)
 
-### Plain PHP / Non-Laravel
+## 🚀 Features
 
-If you're not using Laravel, you can install the SDK via Composer:
+- ✔ Framework-agnostic (PHP 7.4+)
+- ✔ First-class Laravel 7–12 integration
+- ✔ Fully typed methods + PHPDoc
+- ✔ Timezone-aware scheduling (ISO8601 + IANA)
+- ✔ Webhook creation + signature verification
+- ✔ All message types supported
+- ✔ Clean exceptions & error classes
+- ✔ Internal base URL (cannot be changed)
+- ✔ Production-ready architecture
+
+## 🧩 Requirements
+
+| Component | Version |
+|-----------|---------|
+| PHP | >= 7.4 |
+| Laravel | 7 → 12 |
+| Extensions | cURL + JSON |
+
+## 📥 Installation
+
+### Non-Laravel Installation
 
 ```bash
 composer require gradiwapp/gradiwapp-php-sdk
 ```
 
-Or if installing from a VCS repository (before publishing to Packagist):
+**Before publishing on Packagist:**
 
 ```json
 {
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/your-org/gradiwapp-php-sdk.git"
-        }
-    ],
-    "require": {
-        "gradiwapp/gradiwapp-php-sdk": "dev-main"
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/your-org/gradiwapp-php-sdk.git"
     }
+  ],
+  "require": {
+    "gradiwapp/gradiwapp-php-sdk": "dev-main"
+  }
 }
 ```
 
-### Laravel 7-12
-
-Install via Composer:
+### Laravel Installation
 
 ```bash
 composer require gradiwapp/gradiwapp-php-sdk
 ```
 
-Publish the configuration file:
+**Publish config:**
 
 ```bash
 php artisan vendor:publish --provider="GradiWapp\Sdk\Laravel\GradiWappServiceProvider" --tag=config
 ```
 
-This will create `config/gradiwapp.php`. Configure your API credentials in `.env`:
+This generates:
+
+- `config/gradiwapp.php`
+
+**Add environment variables:**
 
 ```env
-GRADIWAPP_API_KEY=your_api_key_here
-GRADIWAPP_API_SECRET=your_api_secret_here
+GRADIWAPP_API_KEY=your_key
+GRADIWAPP_API_SECRET=your_secret
 GRADIWAPP_TIMEOUT=30
 GRADIWAPP_MAX_RETRIES=1
 GRADIWAPP_VERIFY_SSL=true
 ```
 
-> **Note:** The base URL is now internal and non-configurable. All requests are automatically sent to `https://api.gradiwapp.com/external/v1`.
+> **Note:** Base URL is internal and cannot be changed.
 
-The SDK will be auto-discovered by Laravel (Laravel 5.5+).
+## ⚡ Quick Start
 
-## Usage
-
-### Plain PHP
+### Plain PHP Example
 
 ```php
-<?php
-
 use GradiWapp\Sdk\Client;
 use GradiWapp\Sdk\Config;
-use GradiWapp\Sdk\Support\ScheduleOptions;
-use DateTimeImmutable;
 
-// Create configuration
 $config = new Config(
-    apiKey: 'your_api_key',
-    apiSecret: 'your_api_secret',
-    timeout: 30
+    apiKey: 'your_key',
+    apiSecret: 'your_secret'
 );
 
-// Create client
 $client = new Client($config);
 
-// Send a text message
-$message = $client->messages()->sendText(
-    to: '+1234567890',
-    body: 'Hello from GradiWapp SDK!'
+$response = $client->messages()->sendText(
+    to: '+123456',
+    body: 'Hello from GradiWapp!'
 );
-
-echo "Message ID: " . $message['id'] . "\n";
 ```
 
-### Laravel - Dependency Injection
+### Laravel — Dependency Injection
 
 ```php
-<?php
-
-namespace App\Http\Controllers;
-
-use GradiWapp\Sdk\Client;
-use Illuminate\Http\Request;
-
-class MessageController extends Controller
+public function send(GradiWapp\Sdk\Client $client)
 {
-    public function send(Client $client)
-    {
-        $message = $client->messages()->sendText(
-            to: '+1234567890',
-            body: 'Hello from Laravel!'
-        );
-
-        return response()->json($message);
-    }
+    return $client->messages()->sendText(
+        to: '+123456',
+        body: 'Hello!'
+    );
 }
 ```
 
-### Laravel - Facade
+### Laravel — Facade
 
 ```php
-<?php
-
-namespace App\Http\Controllers;
-
 use GradiWapp\Sdk\Laravel\Facades\GradiWapp;
-use Illuminate\Http\Request;
 
-class MessageController extends Controller
-{
-    public function send()
-    {
-        $message = GradiWapp::messages()->sendText(
-            to: '+1234567890',
-            body: 'Hello from Facade!'
-        );
-
-        return response()->json($message);
-    }
-}
+GradiWapp::messages()->sendText('+123456', 'Hello!');
 ```
 
-## Message Types
+## 💬 Messaging
 
 ### Text Messages
 
 ```php
-$message = $client->messages()->sendText(
-    to: '+1234567890',
-    body: 'Hello, World!',
-    priority: 'normal' // or 'high', 'low'
-);
+$client->messages()->sendText('+123', 'Hello!');
 ```
 
 ### Image Messages
 
 ```php
-// Using URL
-$message = $client->messages()->sendImage(
-    to: '+1234567890',
-    imageUrlOrBase64: 'https://example.com/image.jpg',
-    caption: 'Check out this image!'
-);
-
-// Using base64
-$message = $client->messages()->sendImage(
-    to: '+1234567890',
-    imageUrlOrBase64: 'data:image/jpeg;base64,/9j/4AAQSkZJRg...',
-    caption: 'Image sent via base64'
+$client->messages()->sendImage(
+    '+123',
+    'https://example.com/image.jpg',
+    caption: 'Check this out!'
 );
 ```
 
 ### Media Messages
 
 ```php
-$message = $client->messages()->sendMedia(
-    to: '+1234567890',
-    mediaUrl: 'https://example.com/video.mp4',
-    caption: 'Check out this video!'
-);
+$client->messages()->sendMedia('+123', 'https://example.com/video.mp4');
 ```
 
 ### Location Messages
 
 ```php
-$message = $client->messages()->sendLocation(
-    to: '+1234567890',
-    latitude: 40.7128,
-    longitude: -74.0060,
-    name: 'New York City',
-    address: 'New York, NY, USA'
-);
-```
-
-### Link Preview Messages
-
-```php
-$message = $client->messages()->sendLink(
-    to: '+1234567890',
-    url: 'https://example.com/article',
-    caption: 'Check out this article!'
+$client->messages()->sendLocation(
+    '+123',
+    40.7128,
+    -74.0060,
+    name: 'NYC',
+    address: 'New York'
 );
 ```
 
 ### File Messages
 
 ```php
-$message = $client->messages()->sendFile(
-    to: '+1234567890',
-    fileUrl: 'https://example.com/document.pdf',
-    filename: 'document.pdf',
-    body: 'Please find the attached document'
+$client->messages()->sendFile(
+    '+123',
+    fileUrl: 'https://example.com/doc.pdf',
+    filename: 'Invoice.pdf'
 );
 ```
 
-### Contact vCard Messages
+### Contact (vCard)
 
 ```php
-$message = $client->messages()->sendContact(
-    to: '+1234567890',
-    contactsId: 'contact_id_from_whatsapp'
+$client->messages()->sendContact(
+    '+123',
+    contactsId: 'whatsapp_contact_id'
 );
 ```
 
 ### Reply Messages
 
 ```php
-$message = $client->messages()->sendReply(
-    to: '+1234567890',
-    body: 'This is a reply',
-    replyToMessageId: '01ARZ3NDEKTSV4RRFFQ69G5FBD'
+$client->messages()->sendReply(
+    '+123',
+    'This is a reply',
+    replyToMessageId: '01ABC...'
 );
 ```
 
 ### Text + Media Combination
 
 ```php
-$message = $client->messages()->sendBoth(
-    to: '+1234567890',
-    body: 'Check this out!',
-    mediaUrl: 'https://example.com/image.jpg',
-    caption: 'Image caption'
+$client->messages()->sendBoth(
+    '+123',
+    'Hello!',
+    mediaUrl: 'https://example.com/pic.jpg',
+    caption: 'Nice image'
 );
 ```
 
-## Scheduling Messages
+## ⏰ Timezone-Aware Scheduling
 
-The SDK supports timezone-aware message scheduling. You can schedule messages in two ways:
-
-### Option 1: ISO8601 Format with Timezone Offset
+### ISO8601 Example
 
 ```php
-use GradiWapp\Sdk\Support\ScheduleOptions;
-use DateTimeImmutable;
+ScheduleOptions::fromIso8601('2025-11-15T08:02:00+03:00');
+```
 
-// Schedule for a specific date/time with timezone offset
-$schedule = ScheduleOptions::fromIso8601('2025-11-15T08:02:00+03:00');
+### IANA Timezone
 
-$message = $client->messages()->sendText(
-    to: '+1234567890',
-    body: 'This message is scheduled',
-    schedule: $schedule
+```php
+ScheduleOptions::at(
+    new DateTimeImmutable('2025-11-15 08:00'),
+    'Africa/Cairo'
 );
 ```
 
-### Option 2: DateTime + IANA Timezone
+## 📡 Message Status
 
 ```php
-use GradiWapp\Sdk\Support\ScheduleOptions;
-use DateTimeImmutable;
-
-// Schedule for 8:02 AM in Cairo timezone
-$dateTime = new DateTimeImmutable('2025-11-15 08:02:00');
-$schedule = ScheduleOptions::at($dateTime, 'Africa/Cairo');
-
-$message = $client->messages()->sendText(
-    to: '+1234567890',
-    body: 'This message is scheduled for 8:02 AM Cairo time',
-    schedule: $schedule
-);
+$client->messages()->getStatus('01ABC...');
 ```
 
-### Example: Schedule in User's Local Timezone
-
-```php
-// User wants message at 9:00 AM in their timezone (America/New_York)
-$userTimezone = 'America/New_York';
-$scheduledTime = new DateTimeImmutable('2025-11-15 09:00:00');
-$schedule = ScheduleOptions::at($scheduledTime, $userTimezone);
-
-$message = $client->messages()->sendText(
-    to: '+1234567890',
-    body: 'Good morning!',
-    schedule: $schedule
-);
-```
-
-## Message Status
-
-Check the status of a sent message:
-
-```php
-$status = $client->messages()->getStatus('01ARZ3NDEKTSV4RRFFQ69G5FBD');
-
-// Response:
-// [
-//     'status' => 'delivered',
-//     'sent_at' => '2025-01-27T10:00:05.000000Z',
-//     'delivered_at' => '2025-01-27T10:00:10.000000Z',
-//     'read_at' => null
-// ]
-```
-
-## Webhooks
+## 🧩 Webhooks
 
 ### Create Webhook
 
 ```php
-$webhook = $client->webhooks()->create(
-    type: 'delivery', // or 'read', 'incoming_message'
-    url: 'https://your-domain.com/webhooks/delivery',
-    secret: 'your_webhook_secret',
-    active: true
+$client->webhooks()->create(
+    'delivery',
+    'https://yourdomain.com/webhooks',
+    secret: 'secret'
 );
 ```
 
-### Update Webhook
+### Verify Signature
 
 ```php
-$webhook = $client->webhooks()->update(
-    webhookId: '01ARZ3NDEKTSV4RRFFQ69G5FBG',
-    data: [
-        'url' => 'https://your-domain.com/webhooks/delivery-updated',
-        'active' => true
-    ]
-);
+Webhooks::verifySignature($payload, $signature, $secret);
 ```
 
-### Delete Webhook
+## ❗ Error Handling
+
+Built-in typed exceptions:
+
+- `AuthenticationException`
+- `ValidationException`
+- `HttpException`
+- `GradiWappException`
+
+**Example:**
 
 ```php
-$client->webhooks()->delete('01ARZ3NDEKTSV4RRFFQ69G5FBG');
-```
-
-### Verify Webhook Signature (Laravel Example)
-
-```php
-<?php
-
-namespace App\Http\Controllers;
-
-use GradiWapp\Sdk\Resources\Webhooks;
-use Illuminate\Http\Request;
-
-class WebhookController extends Controller
-{
-    public function handleDelivery(Request $request)
-    {
-        $signature = $request->header('X-Webhook-Signature');
-        $secret = config('gradiwapp.webhook_secret'); // Store this securely
-        $payload = $request->getContent();
-
-        if (!Webhooks::verifySignature($payload, $signature, $secret)) {
-            return response()->json(['error' => 'Invalid signature'], 401);
-        }
-
-        $data = $request->json()->all();
-        
-        // Process webhook data
-        // $data['event'] - event type
-        // $data['data'] - event data
-        // $data['timestamp'] - event timestamp
-
-        return response()->json(['received' => true]);
-    }
-}
-```
-
-## Error Handling
-
-The SDK throws specific exceptions for different error types:
-
-```php
-use GradiWapp\Sdk\Exceptions\AuthenticationException;
-use GradiWapp\Sdk\Exceptions\ValidationException;
-use GradiWapp\Sdk\Exceptions\HttpException;
-use GradiWapp\Sdk\Exceptions\GradiWappException;
-
 try {
-    $message = $client->messages()->sendText('+1234567890', 'Hello');
-} catch (AuthenticationException $e) {
-    // 401/403 - Invalid API key/secret or signature
-    echo "Authentication failed: " . $e->getMessage();
+    $client->messages()->sendText('+123', 'Hi');
 } catch (ValidationException $e) {
-    // 422 - Validation errors
-    echo "Validation failed: " . $e->getMessage();
-    $errors = $e->getErrors(); // Array of validation errors
-} catch (HttpException $e) {
-    // Other 4xx/5xx errors
-    echo "HTTP error: " . $e->getMessage();
-    echo "Status code: " . $e->getCode();
-} catch (GradiWappException $e) {
-    // Generic SDK exception
-    echo "Error: " . $e->getMessage();
+    print_r($e->getErrors());
 }
 ```
 
-### Accessing Error Details
+## 🔧 Advanced Usage
 
-All exceptions provide access to:
-
-- `getMessage()` - Error message
-- `getCode()` - HTTP status code
-- `getErrors()` - Validation errors (if applicable)
-- `getMeta()` - Response metadata
-- `getRawBody()` - Raw response body
-
-## Advanced Usage
-
-### Using Session ID
-
-If you have multiple WhatsApp sessions, you can specify which session to use:
+### Multiple Sessions
 
 ```php
-$message = $client->messages()->sendText(
-    to: '+1234567890',
-    body: 'Hello',
-    sessionId: '01ARZ3NDEKTSV4RRFFQ69G5FBC'
+$client->messages()->sendText(
+    '+123',
+    'Hi',
+    sessionId: 'session_01'
 );
 ```
 
-### Custom Priority
+### Priority
 
 ```php
-$message = $client->messages()->sendText(
-    to: '+1234567890',
-    body: 'Urgent message',
-    priority: 'high' // 'normal', 'high', or 'low'
-);
+$client->messages()->sendText('+123', 'Hi', priority: 'high');
 ```
 
-## Response Format
+## 📦 Response Format
 
-All API responses follow the BaseResponse format:
+Your backend returns:
 
 ```json
 {
-    "success": true,
-    "message": "Message queued successfully",
-    "data": {
-        "id": "01ARZ3NDEKTSV4RRFFQ69G5FBD",
-        "type": "text",
-        "to_msisdn": "+1234567890",
-        "body": "Hello, World!",
-        "status": "queued",
-        "created_at": "2025-01-27T10:00:00.000000Z",
-        "delivery_status": {
-            "is_sent": false,
-            "is_delivered": false,
-            "is_read": false,
-            "is_queued": true
-        }
-    },
-    "meta": {
-        "request_id": "req_123456",
-        "timestamp": "2025-01-27T10:00:00.000000Z",
-        "locale": "en"
-    }
+  "success": true,
+  "message": "Message queued successfully",
+  "data": {
+    "id": "01ARZ3N...",
+    "status": "queued"
+  }
 }
 ```
 
-## Versioning & Support
+## 🧭 Versioning & SDK Stability
 
-This SDK follows Semantic Versioning (SemVer). The SDK version aligns with the backend API version where applicable.
+This SDK follows Semantic Versioning (SemVer):
 
-- **Breaking changes** will result in a major version bump
-- **New features** will result in a minor version bump
-- **Bug fixes** will result in a patch version bump
+- **MAJOR** → Breaking changes
+- **MINOR** → New features
+- **PATCH** → Bug fixes
 
-## Contributing
+## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Pull Requests are welcome!
 
-## License
+## 📄 License
 
-This SDK is open-sourced software licensed under the [MIT license](LICENSE).
-
-## Support
-
-For support, please contact:
-- Email: support@gradiwapp.com
-- Documentation: https://docs.gradiwapp.com
-
+MIT License.
