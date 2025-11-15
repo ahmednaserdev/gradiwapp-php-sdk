@@ -90,7 +90,7 @@ composer require gradiwapp/gradiwapp-php-sdk
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/your-org/gradiwapp-php-sdk.git"
+      "url": "https://github.com/ahmednaserdev/gradiwapp-php-sdk.git"
     }
   ],
   "require": {
