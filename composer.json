@@ -1,0 +1,54 @@
+{
+    "name": "gradiwapp/gradiwapp-php-sdk",
+    "description": "Official PHP SDK for GradiWapp External API - Multi-tenant WhatsApp SaaS Messaging Platform",
+    "type": "library",
+    "keywords": [
+        "gradiwapp",
+        "whatsapp",
+        "messaging",
+        "api",
+        "sdk",
+        "laravel"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "GradiWapp",
+            "email": "support@gradiwapp.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "guzzlehttp/guzzle": "^7.0"
+    },
+    "suggest": {
+        "laravel/framework": "^7.0 || ^8.0 || ^9.0 || ^10.0 || ^11.0 || ^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "GradiWapp\\Sdk\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "GradiWapp\\Sdk\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "GradiWapp\\Sdk\\Laravel\\GradiWappServiceProvider"
+            ],
+            "aliases": {
+                "GradiWapp": "GradiWapp\\Sdk\\Laravel\\Facades\\GradiWapp"
+            }
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true,
+        "preferred-install": "dist"
+    }
+}
+
